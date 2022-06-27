@@ -22,13 +22,32 @@ type pipeline struct {
 
 func Pipeline() *pipeline {
 	return &pipeline{
-		sort:    bson.D{},
-		project: bson.D{},
+		sort:     make(bson.D, 0),
+		project:  make(bson.D, 0),
+		groupRaw: make(bson.D, 0),
 	}
 }
 
 func (r *pipeline) DS() []bson.D {
-	return nil
+	if r.group != nil {
+		for _, d := range r.group.DS() {
+			r.groupRaw = append(r.groupRaw, d)
+		}
+	}
+	res := make([]bson.D, 0)
+	if len(r.groupRaw) > 0 {
+		res = append(res, bson.D{{"$group", r.groupRaw}})
+	}
+	if BSON_LOGGER {
+		d, e := bson.MarshalExtJSON(bson.D{{"pipeline", res}}, true, false)
+		if e != nil {
+			Error_Log(e)
+		} else {
+			Trace_Log(string(d))
+		}
+
+	}
+	return res
 }
 
 func (r *pipeline) M() []bson.M {

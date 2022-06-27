@@ -3,7 +3,9 @@ package mgqb
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"testing"
 )
 
@@ -22,24 +24,28 @@ func Test_accumulator1(t *testing.T) {
   { "_id" : 7020, "title" : "Iliad", "author" : "Homer", "copies" : 10 }
 ]`), &docs)
 		conn.Database("test").Collection("books").InsertMany(context.Background(), docs)
-		_accumulator := &accumulator{}
-		_accumulator.Accumulate(`
-				function(state, numCopies) {  // Define how to update the state
-				  return {
-					count: state.count + 1,
-					sum: state.sum + numCopies
-				  }
-				}
-				`).
-			AccumulateArgs([]interface{}{"$copies"})
+		_accumulator := Accumulator()
+		_accumulator.
+			Init(`function() { return { count: 0, sum: 0 }}`).
+			Accumulate(`function(state, numCopies) { return {count: state.count + 1,sum: state.sum + numCopies}}`).
+			AccumulateArgs([]interface{}{"$copies"}).
+			Merge(`function(state1, state2) {   return {  count: state1.count + state2.count,sum: state1.sum + state2.sum}}`).
+			Finalize(`function(state) { return (state.sum / state.count)  }`).
+			Lang("js")
 		g := Group().FieldSimple("_id", "$author").Accumulator("avgCopies", _accumulator)
-		cus, err := conn.Database("db").Aggregate(context.Background(), Pipeline().Group(g).DS())
+		cus, err := conn.Database("test").Collection("books").Aggregate(context.Background(), Pipeline().Group(g).DS())
 		if err != nil {
 			t.Fatal(err)
 		}
-		for cus.Next(context.Background()) {
-			fmt.Print(cus.Current)
+		var res bson.A
+		err = cus.All(context.Background(), &res)
+		if err != nil {
+			t.Fatal(err)
 		}
+		if len(res) != 2 {
+			t.Fatal(errors.New("res length not 2"))
+		}
+		fmt.Println(res)
 	})
 
 }

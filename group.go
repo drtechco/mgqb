@@ -4,7 +4,7 @@ import "go.mongodb.org/mongo-driver/bson"
 
 type group struct {
 	accumulators   map[string]*accumulator
-	accumulatorRaw map[string]bson.M
+	accumulatorRaw map[string]bson.D
 	count          bson.M
 	mergeObjects   bson.M
 	fields         bson.M
@@ -14,7 +14,7 @@ func Group() *group {
 	return &group{
 		fields:         make(bson.M),
 		accumulators:   make(map[string]*accumulator),
-		accumulatorRaw: make(map[string]bson.M),
+		accumulatorRaw: make(map[string]bson.D),
 	}
 }
 
@@ -23,7 +23,7 @@ func (g *group) Accumulator(field string, acc *accumulator) *group {
 	return g
 }
 
-func (g *group) AccumulatorRaw(field string, acc bson.M) *group {
+func (g *group) AccumulatorRaw(field string, acc bson.D) *group {
 	g.accumulatorRaw[field] = acc
 	return g
 }
@@ -48,26 +48,23 @@ func (g *group) FieldSimple(field string, c string) *group {
 	return g
 }
 
-func (g *group) D() bson.D {
+func (g *group) DS() bson.D {
 	d := make(bson.D, 0)
 
 	for k, v := range g.fields {
 		d = append(d, bson.E{Key: k, Value: v})
 	}
 	if g.accumulatorRaw == nil {
-		g.accumulatorRaw = make(map[string]bson.M)
+		g.accumulatorRaw = make(map[string]bson.D)
 	}
 	if g.accumulators != nil {
 		for accField, _accumulator := range g.accumulators {
-			if _, ex := g.accumulatorRaw[accField]; ex {
-				g.accumulatorRaw[accField] = _accumulator.M()
-			}
-
+			g.accumulatorRaw[accField] = _accumulator.D()
 		}
 	}
 	if len(g.accumulatorRaw) > 0 {
 		for field, acc := range g.accumulatorRaw {
-			d = append(d, bson.E{Key: field, Value: bson.E{Key: "$accumulator", Value: acc}})
+			d = append(d, bson.E{Key: field, Value: bson.D{{"$accumulator", acc}}})
 		}
 	}
 	if g.count != nil {

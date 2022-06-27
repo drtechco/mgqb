@@ -1,6 +1,7 @@
 package mgqb
 
 import "go.mongodb.org/mongo-driver/bson"
+
 type accumulator struct {
 	init           string
 	initArgs       bson.A
@@ -12,7 +13,10 @@ type accumulator struct {
 }
 
 func Accumulator() *accumulator {
-	return &accumulator{}
+	return &accumulator{
+		initArgs:       make(bson.A, 0),
+		accumulateArgs: make(bson.A, 0),
+	}
 }
 
 func (a *accumulator) Init(code string) *accumulator {
@@ -59,5 +63,17 @@ func (a *accumulator) M() bson.M {
 		"merge":          a.merge,
 		"finalize":       a.finalize,
 		"lang":           a.lang,
+	}
+}
+
+func (a *accumulator) D() bson.D {
+	return bson.D{{
+		"init", a.init},
+		{"initArgs", a.initArgs},
+		{"accumulate", a.accumulate},
+		{"accumulateArgs", a.accumulateArgs},
+		{"merge", a.merge},
+		{"finalize", a.finalize},
+		{"lang", a.lang},
 	}
 }
