@@ -20,6 +20,12 @@ func (s *addFields) Set(field string, expression bson.D) *addFields {
 	return s
 }
 
+func (s *addFields) ConcatArrays(field string, collField string, val []interface{}, documents ...interface{}) *addFields {
+	s.fields[field] = bson.D{{Key: "$concatArrays", Value: bson.A{collField, val}}}
+	s.setDoc(field, documents)
+	return s
+}
+
 func (s *addFields) Sum(field string, collField string, documents ...interface{}) *addFields {
 	s.fields[field] = bson.D{{Key: "$sum", Value: collField}}
 	s.setDoc(field, documents)
