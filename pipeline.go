@@ -163,7 +163,9 @@ func (r *pipeline) DS() []bson.D {
 		}
 	}
 	if len(r.addFieldsRaw) > 0 {
-		res = append(res, bson.D{{"$addFields", r.groupRaw}})
+		for _, d := range r.addFieldsRaw {
+			res = append(res, bson.D{{"$addFields", d}})
+		}
 	}
 
 	if r.count != nil {
@@ -199,7 +201,7 @@ func (r *pipeline) DS() []bson.D {
 		res = append(res, bson.D{{"$match", r.matchRaw}})
 	}
 
-	if r.project != nil {
+	if len(r.project) > 0 {
 		res = append(res, bson.D{{"$project", r.project}})
 	}
 
@@ -220,7 +222,7 @@ func (r *pipeline) DS() []bson.D {
 	}
 
 	if len(r.sort) > 0 {
-		res = append(res, r.sort)
+		res = append(res, bson.D{{"$sort", r.sort}})
 	}
 
 	if r.sortByCount != "" {
