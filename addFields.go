@@ -54,7 +54,7 @@ func (s *addFields) Replace(field string, collField string, documents ...interfa
 	return s
 }
 
-func (s *addFields) WindowOperator(field string, operator operator, operatorPars string) *addFields {
+func (s *addFields) WindowOperator(field string, operator windowOperator, operatorPars string) *addFields {
 	if d, ok := s.fields[field].(bson.D); ok {
 		if e, ok := findDWithE(d, string(operator)); ok {
 			e.Value = operatorPars
