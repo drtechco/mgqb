@@ -139,3 +139,7 @@ func (s *addFields) ES() []bson.E {
 	}
 	return res
 }
+
+func (s *addFields) D() bson.D {
+	return s.ES()
+}
