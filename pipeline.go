@@ -6,7 +6,7 @@ import (
 
 type pipeline struct {
 	matchRaw        bson.D
-	match           *builder
+	match           *match
 	skip            bson.D
 	limit           bson.D
 	count           bson.D
@@ -54,14 +54,14 @@ func (r *pipeline) M() []bson.M {
 	return nil
 }
 
-func (r *pipeline) GetMatch() *builder {
-	if r.match == nil {
-		r.match = Builder()
-	}
-	return r.match
-}
+//func (r *pipeline) GetMatch() *match {
+//	if r.match == nil {
+//		r.match = Ma()
+//	}
+//	return r.match
+//}
 
-func (r *pipeline) SetMatch(b *builder) *pipeline {
+func (r *pipeline) SetMatch(b *match) *pipeline {
 	r.match = b
 	return r
 }

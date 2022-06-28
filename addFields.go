@@ -113,8 +113,8 @@ func (s addFields) checkField(field string, subField string, addVal bson.D, setF
 	}
 }
 
-func (s *addFields) setDoc(field string, documents ...interface{}) {
-	if len(documents) > 0 {
+func (s *addFields) setDoc(field string, documents []interface{}) {
+	if documents != nil && len(documents) > 0 {
 		s.checkField(field, "window", bson.D{{"documents", documents}}, func(w, a bson.D) interface{} {
 			if a, ok := findDWithE(w, "range"); ok {
 				if a1, ok := a.Value.([]interface{}); ok {
