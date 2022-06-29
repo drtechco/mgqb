@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"testing"
+	"time"
 )
 
 func Test_group1(t *testing.T) {
@@ -133,25 +135,35 @@ func Test_group3(t *testing.T) {
 		//	t.Fatal(err2)
 		//}
 
-		//tt, err := time.Parse("2006-01-02", "2014-01-01")
-		//if err != nil {
-		//	t.Fatal(err)
-		//}
-		//ttt, err := time.Parse("2006-01-02", "2015-01-01")
-		//if err != nil {
-		//	t.Fatal(err)
-		//}
-		cus, err := conn.Database("test").Collection("sales").
+		tt, err := time.Parse("2006-01-02", "2014-01-01")
+		if err != nil {
+			t.Fatal(err)
+		}
+		ttt, err := time.Parse("2006-01-02", "2015-01-01")
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		cus, err := conn.Database("test").Collection("sales2").
 			Aggregate(context.Background(), Pipeline().
-				SetMatch(Match("date", WhereOperators.GTE, "new ISODate(\"2014-01-01\")").
-					And("date", WhereOperators.LT, "new ISODate(\"2015-01-01\")")).
-				Group(Group().
-					Field("_id",
-						bson.M{"$dateToString": bson.D{{"format", "%Y-%m-%d"}, {"date", "$date"}}}).
-					Field("totalSaleAmount",
-						bson.M{"$sum": bson.M{"$multiply": []string{"$price", "$quantity"}}}).
-					Field("averageQuantity", bson.M{"$avg": "$quantity"}).
-					Field("count", bson.M{"$sum": 1})).SortDesc("totalSaleAmount").DS())
+				SetMatch(
+					MatchWo(
+						"date",
+						WO(WhereOperators.GTE, primitive.NewDateTimeFromTime(tt)),
+						WO(WhereOperators.LT, primitive.NewDateTimeFromTime(ttt)),
+					),
+				).
+				Group(
+					Group().
+						Field("_id",
+							bson.M{"$dateToString": bson.D{{"format", "%Y-%m-%d"}, {"date", "$date"}}}).
+						Field("totalSaleAmount",
+							bson.M{"$sum": bson.M{"$multiply": []string{"$price", "$quantity"}}}).
+						Field("averageQuantity", bson.M{"$avg": "$quantity"}).
+						Field("count", bson.M{"$sum": 1}),
+				).
+				SortDesc("totalSaleAmount").
+				DS())
 		if err != nil {
 			t.Fatal(err)
 		}

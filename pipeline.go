@@ -157,6 +157,14 @@ func (r *pipeline) SortByCount(field string) {
 func (r *pipeline) DS() []bson.D {
 	res := make([]bson.D, 0)
 
+	if r.match != nil {
+		r.matchRaw = r.match.D()
+	}
+
+	if r.matchRaw != nil {
+		res = append(res, bson.D{{"$match", r.matchRaw}})
+	}
+
 	if len(r.addFields) > 0 {
 		for _, field := range r.addFields {
 			r.addFieldsRaw = append(r.addFieldsRaw, field.D())
@@ -191,14 +199,6 @@ func (r *pipeline) DS() []bson.D {
 
 	if r.lookupRaw != nil {
 		res = append(res, bson.D{{"$lookup", r.lookupRaw}})
-	}
-
-	if r.match != nil {
-		r.matchRaw = r.match.D()
-	}
-
-	if r.matchRaw != nil {
-		res = append(res, bson.D{{"$match", r.matchRaw}})
 	}
 
 	if len(r.project) > 0 {
