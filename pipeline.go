@@ -13,10 +13,10 @@ type pipeline struct {
 	limit              bson.D
 	count              bson.D
 	sort               bson.D
-	unwind             bson.D
+	unwind             []bson.D
 	project            bson.D
-	lookupRaw          bson.D
-	lookup             *lookup
+	lookupRaw          []bson.D
+	lookup             []*lookup
 	setWindowFields    *setWindowFields
 	setWindowFieldsRaw bson.D
 	group              *group
@@ -33,6 +33,9 @@ func Pipeline() *pipeline {
 		groupRaw:     make(bson.D, 0),
 		addFields:    make([]*addFields, 0),
 		addFieldsRaw: make([]bson.D, 0),
+		unwind:       make([]bson.D, 0),
+		lookupRaw:    make([]bson.D, 0),
+		lookup:       make([]*lookup, 0),
 	}
 }
 
@@ -78,11 +81,18 @@ func (r *pipeline) SortAsc(field string) *pipeline {
 }
 
 func (r *pipeline) Unwind(path string, includeArrayIndex string, preserveNullAndEmptyArrays bool) *pipeline {
-	r.unwind = bson.D{{"$unwind", bson.D{
+	r.unwind = append(r.unwind, bson.D{{"$unwind", bson.D{
 		{"path", path},
 		{"includeArrayIndex", includeArrayIndex},
 		{"preserveNullAndEmptyArrays", preserveNullAndEmptyArrays},
-	}}}
+	}}})
+	return r
+}
+
+func (r *pipeline) UnwindSimple(exp ...string) *pipeline {
+	for _, e := range exp {
+		r.unwind = append(r.unwind, bson.D{{"$unwind", e}})
+	}
 	return r
 }
 
@@ -101,12 +111,12 @@ func (r *pipeline) ProjectSub(field string, e bson.E) *pipeline {
 	return r
 }
 
-func (r *pipeline) LookupRaw(l bson.D) *pipeline {
-	r.lookupRaw = l
+func (r *pipeline) LookupRaw(ls ...bson.D) *pipeline {
+	r.lookupRaw = append(r.lookupRaw, ls...)
 	return r
 }
-func (r *pipeline) Lookup(l *lookup) *pipeline {
-	r.lookup = l
+func (r *pipeline) Lookup(ls ...*lookup) *pipeline {
+	r.lookup = append(r.lookup, ls...)
 	return r
 }
 
@@ -182,12 +192,16 @@ func (r *pipeline) DS() []bson.D {
 		res = append(res, r.limit)
 	}
 
-	if r.lookup != nil {
-		r.lookupRaw = r.lookup.D()
+	if len(r.lookup) > 0 {
+		for _, l := range r.lookup {
+			r.lookupRaw = append(r.lookupRaw, l.D())
+		}
 	}
 
-	if r.lookupRaw != nil {
-		res = append(res, bson.D{{"$lookup", r.lookupRaw}})
+	if len(r.lookupRaw) > 0 {
+		for _, l := range r.lookupRaw {
+			res = append(res, bson.D{{"$lookup", l}})
+		}
 	}
 
 	if len(r.project) > 0 {
@@ -223,7 +237,9 @@ func (r *pipeline) DS() []bson.D {
 	}
 
 	if r.unwind != nil {
-		res = append(res, r.unwind)
+		for _, u := range r.unwind {
+			res = append(res, u)
+		}
 	}
 
 	if len(r.addFields) > 0 {
