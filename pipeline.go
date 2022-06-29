@@ -165,17 +165,6 @@ func (r *pipeline) DS() []bson.D {
 		res = append(res, bson.D{{"$match", r.matchRaw}})
 	}
 
-	if len(r.addFields) > 0 {
-		for _, field := range r.addFields {
-			r.addFieldsRaw = append(r.addFieldsRaw, field.D())
-		}
-	}
-	if len(r.addFieldsRaw) > 0 {
-		for _, d := range r.addFieldsRaw {
-			res = append(res, bson.D{{"$addFields", d}})
-		}
-	}
-
 	if r.count != nil {
 		res = append(res, r.count)
 	}
@@ -235,6 +224,17 @@ func (r *pipeline) DS() []bson.D {
 
 	if r.unwind != nil {
 		res = append(res, r.unwind)
+	}
+
+	if len(r.addFields) > 0 {
+		for _, field := range r.addFields {
+			r.addFieldsRaw = append(r.addFieldsRaw, field.D())
+		}
+	}
+	if len(r.addFieldsRaw) > 0 {
+		for _, d := range r.addFieldsRaw {
+			res = append(res, bson.D{{"$addFields", d}})
+		}
 	}
 
 	if BSON_LOGGER {

@@ -1,6 +1,7 @@
 package mgqb
 
 import "go.mongodb.org/mongo-driver/bson"
+
 type lookup struct {
 	from         string
 	localField   string
@@ -25,6 +26,11 @@ func (r *lookup) From(from string) *lookup {
 
 func (r *lookup) LocalField(field string) *lookup {
 	r.localField = field
+	return r
+}
+
+func (r *lookup) ForeignField(field string) *lookup {
+	r.foreignField = field
 	return r
 }
 
@@ -53,7 +59,9 @@ func (r *lookup) D() bson.D {
 	d = append(d, bson.E{Key: "from", Value: r.from})
 	d = append(d, bson.E{Key: "localField", Value: r.localField})
 	d = append(d, bson.E{Key: "foreignField", Value: r.foreignField})
-	d = append(d, bson.E{Key: "let", Value: r.let})
+	if len(r.let) > 0 {
+		d = append(d, bson.E{Key: "let", Value: r.let})
+	}
 	if r.pipeline != nil {
 		for k, v := range r.pipeline.M() {
 			r.pipelineRaw[k] = v
