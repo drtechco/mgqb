@@ -7,7 +7,7 @@ type lookup struct {
 	localField   string
 	foreignField string
 	let          bson.M
-	pipelineRaw  []bson.M
+	pipelineRaw  []bson.D
 	pipeline     *pipeline
 	as           string
 }
@@ -15,7 +15,7 @@ type lookup struct {
 func Lookup() *lookup {
 	return &lookup{
 		let:         make(map[string]interface{}),
-		pipelineRaw: make([]bson.M, 0),
+		pipelineRaw: make([]bson.D, 0),
 	}
 }
 
@@ -39,7 +39,7 @@ func (r *lookup) Let(field string, as interface{}) *lookup {
 	return r
 }
 
-func (r *lookup) PipelineRaw(pl []bson.M) *lookup {
+func (r *lookup) PipelineRaw(pl []bson.D) *lookup {
 	r.pipelineRaw = pl
 	return r
 }
@@ -56,19 +56,26 @@ func (r *lookup) As(collection string) *lookup {
 
 func (r *lookup) D() bson.D {
 	d := make(bson.D, 0)
-	d = append(d, bson.E{Key: "from", Value: r.from})
-	d = append(d, bson.E{Key: "localField", Value: r.localField})
-	d = append(d, bson.E{Key: "foreignField", Value: r.foreignField})
+	if r.from != "" {
+		d = append(d, bson.E{Key: "from", Value: r.from})
+	}
+	if r.localField != "" {
+		d = append(d, bson.E{Key: "localField", Value: r.localField})
+	}
+	if r.foreignField != "" {
+		d = append(d, bson.E{Key: "foreignField", Value: r.foreignField})
+	}
+
 	if len(r.let) > 0 {
 		d = append(d, bson.E{Key: "let", Value: r.let})
 	}
 	if r.pipeline != nil {
-		for k, v := range r.pipeline.M() {
-			r.pipelineRaw[k] = v
+		for _, v := range r.pipeline.DS() {
+			r.pipelineRaw = append(r.pipelineRaw, v)
 		}
 	}
 	if len(r.pipelineRaw) > 0 {
-		d = append(d, bson.E{Key: "$pipeline", Value: r.pipelineRaw})
+		d = append(d, bson.E{Key: "pipeline", Value: r.pipelineRaw})
 	}
 	d = append(d, bson.E{Key: "as", Value: r.as})
 	return d

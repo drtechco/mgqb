@@ -43,6 +43,11 @@ func Pipeline() *pipeline {
 //	return r.match
 //}
 
+func (r *pipeline) SetMatchRaw(b bson.D) *pipeline {
+	r.matchRaw = b
+	return r
+}
+
 func (r *pipeline) SetMatch(b *match) *pipeline {
 	r.match = b
 	return r
@@ -93,6 +98,11 @@ func (r *pipeline) Project1(field string) *pipeline {
 
 func (r *pipeline) Project0(field string) *pipeline {
 	r.project = append(r.project, bson.E{Key: field, Value: 0})
+	return r
+}
+
+func (r *pipeline) ProjectString(field string, m bson.M) *pipeline {
+	r.project = append(r.project, bson.E{Key: field, Value: m})
 	return r
 }
 
@@ -190,16 +200,15 @@ func (r *pipeline) DS() []bson.D {
 		res = append(res, bson.D{{"$lookup", r.lookupRaw}})
 	}
 
+	if r.setWindowFields != nil {
+		r.setWindowFieldsRaw = r.setWindowFields.D()
+	}
 	if len(r.project) > 0 {
 		res = append(res, bson.D{{"$project", r.project}})
 	}
 
 	if r.replaceRoot != nil {
 		res = append(res, bson.D{{"$replaceRoot", bson.D{{"newRoot", r.replaceRoot}}}})
-	}
-
-	if r.setWindowFields != nil {
-		r.setWindowFieldsRaw = r.setWindowFields.D()
 	}
 
 	if r.setWindowFieldsRaw != nil {
