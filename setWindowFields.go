@@ -33,7 +33,7 @@ func (s *setWindowFields) PartitionBy(expression bson.D) *setWindowFields {
 }
 
 func (s *setWindowFields) SortDesc(field string) *setWindowFields {
-	if ex, ok := findDWithE(s.sortBy, field); ok {
+	if ex, ok := findDWithE(&s.sortBy, field); ok {
 		ex.Value = -1
 	} else {
 		s.sortBy = append(s.sortBy, bson.E{Key: field, Value: -1})
@@ -42,7 +42,7 @@ func (s *setWindowFields) SortDesc(field string) *setWindowFields {
 }
 
 func (s *setWindowFields) SortAsc(field string) *setWindowFields {
-	if ex, ok := findDWithE(s.sortBy, field); ok {
+	if ex, ok := findDWithE(&s.sortBy, field); ok {
 		ex.Value = 1
 	} else {
 		s.sortBy = append(s.sortBy, bson.E{Key: field, Value: 1})
@@ -50,8 +50,9 @@ func (s *setWindowFields) SortAsc(field string) *setWindowFields {
 	return s
 }
 
-func (s *setWindowFields) AddOutput(field *addFields) {
+func (s *setWindowFields) AddOutput(field *addFields) *setWindowFields {
 	s.output = append(s.output, field)
+	return s
 }
 
 func (s *setWindowFields) D() bson.D {

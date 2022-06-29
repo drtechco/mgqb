@@ -48,6 +48,18 @@ func (s *addFields) Avg(field string, collField string, documents ...interface{}
 	return s
 }
 
+func (s *addFields) Max(field string, collField string, documents ...interface{}) *addFields {
+	s.fields[field] = bson.D{{Key: "$max", Value: collField}}
+	s.setDoc(field, documents)
+	return s
+}
+
+func (s *addFields) Push(field string, collField string, documents ...interface{}) *addFields {
+	s.fields[field] = bson.D{{Key: "$push", Value: collField}}
+	s.setDoc(field, documents)
+	return s
+}
+
 func (s *addFields) Const(field string, value interface{}, documents ...interface{}) *addFields {
 	s.fields[field] = value
 	s.setDoc(field, documents)
@@ -62,7 +74,7 @@ func (s *addFields) Replace(field string, collField string, documents ...interfa
 
 func (s *addFields) WindowOperator(field string, operator windowOperator, operatorPars string) *addFields {
 	if d, ok := s.fields[field].(bson.D); ok {
-		if e, ok := findDWithE(d, string(operator)); ok {
+		if e, ok := findDWithE(&d, string(operator)); ok {
 			e.Value = operatorPars
 		} else {
 			s.fields[field] = append(s.fields[field].(bson.D), bson.E{
@@ -75,23 +87,30 @@ func (s *addFields) WindowOperator(field string, operator windowOperator, operat
 }
 
 func (s *addFields) Rang(field string, rangeVal ...interface{}) *addFields {
-	s.checkField(field, "window", bson.D{{"range", rangeVal}}, func(w, a bson.D) interface{} {
-		if a, ok := findDWithE(w, "range"); ok {
+	s.checkField(field, "window", bson.D{{"range", rangeVal}}, func(w, add bson.D) interface{} {
+		if a, ok := findDWithE(&w, "range"); ok {
 			if a1, ok := a.Value.([]interface{}); ok {
-				return append(a1, rangeVal...)
+				a1 = append(a1, rangeVal...)
 			} else {
 				panic(errors.New("range value is not slice"))
 			}
-		} else {
 			return a
+		} else {
+			return append(w, add...)
 		}
 	})
 	return s
 }
 
 func (s *addFields) Unit(field string, unit interface{}) *addFields {
-	s.checkField(field, "window", bson.D{{"unit", unit}}, func(e, a bson.D) interface{} {
-		return unit
+	s.checkField(field, "window", bson.D{{"unit", unit}}, func(w, add bson.D) interface{} {
+		if a, ok := findDWithE(&w, "unit"); ok {
+			a.Value = unit
+			return a
+		} else {
+			return append(w, add...)
+		}
+
 	})
 	return s
 }
@@ -99,9 +118,10 @@ func (s *addFields) Unit(field string, unit interface{}) *addFields {
 func (s addFields) checkField(field string, subField string, addVal bson.D, setFun func(exists, a bson.D) interface{}) {
 	if f, ok := s.fields[field]; ok {
 		if d, ok := f.(bson.D); ok {
-			if wi, ok := findDWithE(d, subField); ok {
+			if wi, ok := findDWithE(&d, subField); ok {
 				if w, ok := wi.Value.(bson.D); ok {
 					wi.Value = setFun(w, addVal)
+					//fmt.Println(wi)
 				} else {
 					panic(errors.New("documents is not bson.E"))
 				}
@@ -122,7 +142,7 @@ func (s addFields) checkField(field string, subField string, addVal bson.D, setF
 func (s *addFields) setDoc(field string, documents []interface{}) {
 	if documents != nil && len(documents) > 0 {
 		s.checkField(field, "window", bson.D{{"documents", documents}}, func(w, a bson.D) interface{} {
-			if a, ok := findDWithE(w, "range"); ok {
+			if a, ok := findDWithE(&w, "range"); ok {
 				if a1, ok := a.Value.([]interface{}); ok {
 					return append(a1, documents...)
 				} else {
