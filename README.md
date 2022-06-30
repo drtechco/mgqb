@@ -1,6 +1,6 @@
 # mgqb 
 Golang Mongodb bson查询流式构造器
-## 实现了一些常用的查
+实现了一些常用的查询 
 已实现Pipeline,Lookup,Match,SetWindowFields,Accumulator,AddFields,Group，Project
 待实现Bucket,BucketAuto,CollStats,Facet,GeoNear,GraphLookup,IndexStats,LstSession,Merge,PlanCacheStats,Redact,UnionWith
 
