@@ -26,6 +26,8 @@ WHERE
 	AND '2015-03-30' 
 GROUP BY
 	b.authorId 
+ORDER BY
+	COUNT( o.orderId ) DESC ,Sum( od.amount ) DESC
 	LIMIT 10  OFFSET 10
 ```
 ```sql
