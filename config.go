@@ -1,4 +1,4 @@
-package main
+package mgqb
 
 var BSON_LOGGER = true
 

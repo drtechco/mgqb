@@ -1,4 +1,4 @@
-package main
+package mgqb
 
 import "go.mongodb.org/mongo-driver/bson"
 
