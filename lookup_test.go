@@ -261,7 +261,7 @@ func Test_lookup5(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		//_, err2 := conn.Database("test").Collection("absences").InsertMany(context.Background(), docs)
+		//simple, err2 := conn.Database("test").Collection("absences").InsertMany(context.Background(), docs)
 		//if err2 != nil {
 		//	t.Fatal(err2)
 		//}
@@ -277,7 +277,7 @@ func Test_lookup5(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		//_, err2 = conn.Database("test").Collection("holidays").InsertMany(context.Background(), docs2)
+		//simple, err2 = conn.Database("test").Collection("holidays").InsertMany(context.Background(), docs2)
 		//if err2 != nil {
 		//	t.Fatal(err2)
 		//}

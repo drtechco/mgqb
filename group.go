@@ -28,7 +28,7 @@ func (g *group) AccumulatorRaw(field string, acc bson.D) *group {
 	return g
 }
 
-func (g *group) Count(field string, c bson.M) *group {
+func (g *group) Count(field string, c interface{}) *group {
 	g.count = bson.M{field: bson.M{"$count": c}}
 	return g
 }
@@ -40,6 +40,26 @@ func (g *group) MergeObjects(field string, c interface{}) *group {
 
 func (g *group) Field(field string, c bson.M) *group {
 	g.fields[field] = c
+	return g
+}
+
+func (g *group) FieldId() *group {
+	g.fields["_id"] = nil
+	return g
+}
+
+func (g *group) FieldCount(field string) *group {
+	g.fields[field] = bson.M{"$sum": 1}
+	return g
+}
+
+func (g *group) FieldAddToSet(field string, collField string) *group {
+	g.fields[field] = bson.M{"$addToSet": collField}
+	return g
+}
+
+func (g *group) FieldSum(field string, collField string) *group {
+	g.fields[field] = bson.M{"$sum": collField}
 	return g
 }
 

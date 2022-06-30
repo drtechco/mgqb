@@ -130,7 +130,7 @@ func Test_group3(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		//_, err2 := conn.Database("test").Collection("sales").InsertMany(context.Background(), docs)
+		//simple, err2 := conn.Database("test").Collection("sales").InsertMany(context.Background(), docs)
 		//if err2 != nil {
 		//	t.Fatal(err2)
 		//}

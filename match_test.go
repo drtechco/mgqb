@@ -26,7 +26,7 @@ func Test_match1(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		//_, err2 := conn.Database("test").Collection("articles").InsertMany(context.Background(), docs)
+		//simple, err2 := conn.Database("test").Collection("articles").InsertMany(context.Background(), docs)
 		//if err2 != nil {
 		//	t.Fatal(err2)
 		//}

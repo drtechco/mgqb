@@ -11,3 +11,7 @@ func findDWithE(d *bson.D, field string) (*bson.E, bool) {
 	}
 	return &bson.E{}, false
 }
+
+func copyOf(y pipeline) pipeline {
+	return y
+}

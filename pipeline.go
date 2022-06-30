@@ -39,142 +39,156 @@ func Pipeline() *pipeline {
 	}
 }
 
-//func (r *pipeline) GetMatch() *match {
+//func (r  pipeline)GetMatch() *match {
 //	if r.match == nil {
 //		r.match = Ma()
 //	}
-//	return r.match
+//	return &r.match
 //}
 
-func (r *pipeline) SetMatchRaw(b bson.D) *pipeline {
+func (r pipeline) SetMatchRaw(b bson.D) *pipeline {
 	r.matchRaw = b
-	return r
+	return &r
 }
 
-func (r *pipeline) SetMatch(b *match) *pipeline {
+func (r pipeline) SetMatch(b *match) *pipeline {
 	r.match = b
-	return r
+	return &r
 }
 
-func (r *pipeline) Skip(skip int64) *pipeline {
+func (r pipeline) Skip(skip int64) *pipeline {
 	r.skip = bson.D{{"$skip", skip}}
-	return r
+	return &r
 }
 
-func (r *pipeline) Limit(limit int64) *pipeline {
+func (r pipeline) Limit(limit int64) *pipeline {
 	r.limit = bson.D{{"$limit", limit}}
-	return r
+	return &r
 }
 
-func (r *pipeline) Count(field string) *pipeline {
+func (r pipeline) Count(field string) *pipeline {
 	if field == "" {
 		field = "totalDocuments"
 	}
 	r.count = bson.D{{"$count", field}}
-	return r
+	return &r
 }
 
-func (r *pipeline) SortDesc(field string) *pipeline {
+func (r pipeline) SortDesc(field string) *pipeline {
 
 	r.sort = append(r.sort, bson.E{Key: field, Value: -1})
-	return r
+	return &r
 }
 
-func (r *pipeline) SortAsc(field string) *pipeline {
+func (r pipeline) SortAsc(field string) *pipeline {
 	r.sort = append(r.sort, bson.E{Key: field, Value: 1})
-	return r
+	return &r
 }
 
-func (r *pipeline) Unwind(path string, includeArrayIndex string, preserveNullAndEmptyArrays bool) *pipeline {
+func (r pipeline) Unwind(path string, includeArrayIndex string, preserveNullAndEmptyArrays bool) *pipeline {
 	r.unwind = append(r.unwind, bson.D{{"$unwind", bson.D{
 		{"path", path},
 		{"includeArrayIndex", includeArrayIndex},
 		{"preserveNullAndEmptyArrays", preserveNullAndEmptyArrays},
 	}}})
-	return r
+	return &r
 }
 
-func (r *pipeline) UnwindSimple(exp ...string) *pipeline {
+func (r pipeline) UnwindSimple(exp ...string) *pipeline {
 	for _, e := range exp {
 		r.unwind = append(r.unwind, bson.D{{"$unwind", e}})
 	}
-	return r
+	return &r
 }
 
-func (r *pipeline) Project1(field string) *pipeline {
-	r.project = append(r.project, bson.E{Key: field, Value: 1})
-	return r
+func (r pipeline) Project1(fields ...string) *pipeline {
+	for _, field := range fields {
+		r.project = append(r.project, bson.E{Key: field, Value: 1})
+	}
+	return &r
 }
 
-func (r *pipeline) Project0(field string) *pipeline {
-	r.project = append(r.project, bson.E{Key: field, Value: 0})
-	return r
+func (r pipeline) Project0(fields ...string) *pipeline {
+	for _, field := range fields {
+		r.project = append(r.project, bson.E{Key: field, Value: 1})
+	}
+	return &r
 }
 
-//func (r *pipeline) ProjectSub(field string, m bson.M) *pipeline {
+//func (r  pipeline)ProjectSub(field string, m bson.M) *pipeline {
 //	r.project = append(r.project, bson.E{Key: field, Value: m})
-//	return r
+//	return &r
 //}
 
-func (r *pipeline) ProjectAny(field string, v interface{}) *pipeline {
+func (r pipeline) ProjectAny(field string, v interface{}) *pipeline {
 	r.project = append(r.project, bson.E{Key: field, Value: v})
-	return r
+	return &r
 }
 
-func (r *pipeline) LookupRaw(ls ...bson.D) *pipeline {
+func (r pipeline) ProjectFirst(field string, collField string) *pipeline {
+	r.project = append(r.project, bson.E{Key: field, Value: bson.M{"$first": collField}})
+	return &r
+}
+
+func (r pipeline) ProjectSize(field string, collField string) *pipeline {
+	r.project = append(r.project, bson.E{Key: field, Value: bson.M{"$size": collField}})
+	return &r
+}
+
+func (r pipeline) LookupRaw(ls ...bson.D) *pipeline {
 	r.lookupRaw = append(r.lookupRaw, ls...)
-	return r
+	return &r
 }
-func (r *pipeline) Lookup(ls ...*lookup) *pipeline {
+func (r pipeline) Lookup(ls ...*lookup) *pipeline {
 	r.lookup = append(r.lookup, ls...)
-	return r
+	return &r
 }
 
-func (r *pipeline) GroupRaw(g bson.D) *pipeline {
+func (r pipeline) GroupRaw(g bson.D) *pipeline {
 	r.groupRaw = g
-	return r
+	return &r
 }
 
-func (r *pipeline) Group(g *group) *pipeline {
+func (r pipeline) Group(g *group) *pipeline {
 	r.group = g
-	return r
+	return &r
 }
 
-func (r *pipeline) AddFields(addField *addFields) *pipeline {
+func (r pipeline) AddFields(addField *addFields) *pipeline {
 	r.addFields = append(r.addFields, addField)
-	return r
+	return &r
 }
 
-func (r *pipeline) AddFieldsRaw(addField bson.D) *pipeline {
+func (r pipeline) AddFieldsRaw(addField bson.D) *pipeline {
 	r.addFieldsRaw = append(r.addFieldsRaw, addField)
-	return r
+	return &r
 }
 
-func (r *pipeline) ReplaceRoot(v interface{}) *pipeline {
+func (r pipeline) ReplaceRoot(v interface{}) *pipeline {
 	r.replaceRoot = v
-	return r
+	return &r
 }
 
-func (r *pipeline) AddUnset(fields ...string) *pipeline {
+func (r pipeline) AddUnset(fields ...string) *pipeline {
 	r.unset = append(r.unset, fields...)
-	return r
+	return &r
 }
 
-func (r *pipeline) SetWindowFields(swf *setWindowFields) *pipeline {
+func (r pipeline) SetWindowFields(swf *setWindowFields) *pipeline {
 	r.setWindowFields = swf
-	return r
+	return &r
 }
 
-func (r *pipeline) SetWindowFieldsRaw(swf bson.D) *pipeline {
+func (r pipeline) SetWindowFieldsRaw(swf bson.D) *pipeline {
 	r.setWindowFieldsRaw = swf
-	return r
+	return &r
 }
 
-func (r *pipeline) SortByCount(field string) {
+func (r pipeline) SortByCount(field string) {
 	r.sortByCount = field
 }
 
-func (r *pipeline) DS() []bson.D {
+func (r pipeline) DS() []bson.D {
 	res := make([]bson.D, 0)
 
 	if r.match != nil {
@@ -187,19 +201,6 @@ func (r *pipeline) DS() []bson.D {
 
 	if r.count != nil {
 		res = append(res, r.count)
-	}
-
-	if r.group != nil {
-		for _, d := range r.group.DS() {
-			r.groupRaw = append(r.groupRaw, d)
-		}
-	}
-	if len(r.groupRaw) > 0 {
-		res = append(res, bson.D{{"$group", r.groupRaw}})
-	}
-
-	if r.limit != nil {
-		res = append(res, r.limit)
 	}
 
 	if len(r.lookup) > 0 {
@@ -227,10 +228,6 @@ func (r *pipeline) DS() []bson.D {
 
 	if r.setWindowFieldsRaw != nil {
 		res = append(res, bson.D{{"$setWindowFields", r.setWindowFieldsRaw}})
-	}
-
-	if r.skip != nil {
-		res = append(res, r.skip)
 	}
 
 	if len(r.sort) > 0 {
@@ -262,6 +259,20 @@ func (r *pipeline) DS() []bson.D {
 		}
 	}
 
+	if r.group != nil {
+		for _, d := range r.group.DS() {
+			r.groupRaw = append(r.groupRaw, d)
+		}
+	}
+	if len(r.groupRaw) > 0 {
+		res = append(res, bson.D{{"$group", r.groupRaw}})
+	}
+	if r.skip != nil {
+		res = append(res, r.skip)
+	}
+	if r.limit != nil {
+		res = append(res, r.limit)
+	}
 	if BSON_LOGGER {
 		d, e := bson.MarshalExtJSON(bson.D{{"pipeline", res}}, true, false)
 		if e != nil {
@@ -274,6 +285,6 @@ func (r *pipeline) DS() []bson.D {
 	return res
 }
 
-func (r *pipeline) M() []bson.M {
+func (r pipeline) M() []bson.M {
 	return nil
 }

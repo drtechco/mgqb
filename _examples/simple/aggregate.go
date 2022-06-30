@@ -1,15 +1,18 @@
-package main
+package simple
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	. "github.com/drtechco/mgqb"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"time"
 )
 
-func main() {
+func AggregateMain() {
 
 	conn, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://10.117.1.102:27017/test?connect=direct"))
 	if err != nil {
@@ -30,7 +33,7 @@ func main() {
 	var docs []interface{}
 	err = bson.UnmarshalExtJSON([]byte(`
  [
-   	{ "_id": 1, "order": "1100" , "dataTime":"2021-05-30" },
+   	{ "_id": 1, "order": "1100", "dataTime": "2021-05-30"},
 	{ "_id": 2, "order": "1101", "dataTime":"2022-06-30" },
 	{ "_id": 3, "order": "1102", "dataTime":"2019-04-30" },
 	{ "_id": 4, "order": "1103", "dataTime":"2006-06-30" },
@@ -39,6 +42,17 @@ func main() {
 	{ "_id": 7, "order": "1106", "dataTime":"2005-06-30" },
 	{ "_id": 8, "order": "1107", "dataTime":"2015-02-30" }
  ] `), true, &docs)
+	for _, doc := range docs {
+		d := doc.(primitive.D)
+		for i := 0; i < len(d); i++ {
+			de := &d[i]
+			if de.Key == "dataTime" {
+				t, _ := time.Parse("2006-01-02", de.Value.(string))
+				de.Value = t
+			}
+		}
+
+	}
 	if err != nil {
 		panic(err)
 	}
@@ -119,33 +133,92 @@ func main() {
 		panic(err2)
 	}
 
-	cus, err := conn.Database("test").Collection("orders").
-		Aggregate(context.Background(), Pipeline().
-			Lookup(
-				Lookup().From("orders_detail").LocalField("order").ForeignField("order").As("od_docs").
-					Pipeline(
-						Pipeline().Lookup(
-							Lookup().From("books").LocalField("bookName").ForeignField("bookName").As("bo_docs").
-								Pipeline(Pipeline().Lookup(
-									Lookup().From("authors").LocalField("authorId").ForeignField("authorId").As("au_docs"),
-								),
-								),
-						).UnwindSimple("$au_docs").ProjectAny("ddd2", "$au_docs.authorId"),
+	beginTime, _ := time.Parse("2006-01-02", "2015-01-01")
+	endTime, _ := time.Parse("2006-01-02", "2023-01-01")
+	ordersPipeline := Pipeline().Lookup(
+		Lookup().From("orders").As("o_docs").LocalField("order").ForeignField("order").
+			Pipeline(
+				Pipeline().
+					SetMatch(
+						MatchWo(
+							"dataTime",
+							WO(WhereOperators.GTE, primitive.NewDateTimeFromTime(beginTime)),
+							WO(WhereOperators.LT, primitive.NewDateTimeFromTime(endTime)),
+						),
+					).
+					Group(
+						Group().Field("_id", nil).FieldCount("orderCount"),
 					),
-			).
-			//ProjectAny("ddd", "$bo_docs.ddd2").
+			),
+	).
+		ProjectAny("orderCount", bson.M{"$first": "$o_docs.orderCount"}).
+		Project1("_id", "bookId", "bookName", "count", "money", "type", "order").
+		Group(
+			Group().
+				FieldSimple("_id", "$bookId").
+				FieldSum("orderCount", "$orderCount").
+				FieldSum("saleCount", "$count").
+				FieldSum("saleAmount", "$money"),
+		)
 
-			//Group(Group().FieldSimple("_id", "$(od_docs.bo_docs.au_docs.authorId)").Field("c", bson.M{"$sum": 1})).
-			DS())
+	ordersDetailPipeline := Pipeline().Lookup(
+		Lookup().From("orders_detail").As("od_docs").
+			LocalField("bookId").
+			ForeignField("bookId").
+			Pipeline(
+				ordersPipeline,
+			),
+	).
+		ProjectAny("orderCount", bson.M{"$first": "$od_docs.orderCount"}).
+		ProjectAny("saleCount", bson.M{"$first": "$od_docs.saleCount"}).
+		ProjectAny("saleAmount", bson.M{"$first": "$od_docs.saleAmount"}).
+		Project1("_id", "author", "authorId", "bookId", "bookName", "money", "od_docs", "type").
+		Group(
+			Group().FieldId().
+				FieldSum("orderCount", "$orderCount").
+				FieldSum("saleCount", "$saleCount").
+				FieldSum("saleAmount", "$saleAmount").
+				FieldAddToSet("types", "$type").
+				FieldCount("bookCount"),
+		)
+
+	booksPipeline := Pipeline().
+		Lookup(
+			Lookup().From("books").As("b_docs").
+				LocalField("authorId").
+				ForeignField("authorId").
+				Pipeline(ordersDetailPipeline),
+		).
+		ProjectFirst("orderCount", "$b_docs.orderCount").
+		ProjectFirst("saleCount", "$b_docs.saleCount").
+		ProjectFirst("saleAmount", "$b_docs.saleAmount").
+		ProjectFirst("bookCount", "$b_docs.bookCount").
+		ProjectSize("types", "$b_docs.types").
+		Project1("author")
+	countCus, err := conn.Database("test").Collection("authors").
+		Aggregate(context.Background(), booksPipeline.Group(Group().FieldId().FieldCount("count")).DS())
 	if err != nil {
 		panic(err)
 	}
-	var res []map[string]interface{}
-	err = cus.All(context.Background(), &res)
+	var countData []map[string]interface{}
+	err = countCus.All(context.Background(), &countData)
 	if err != nil {
 		panic(err)
 	}
-	d, _ := json.Marshal(res)
+	d, _ := json.Marshal(countData)
+	fmt.Println(string(d))
+
+	recordsCus, err := conn.Database("test").Collection("authors").
+		Aggregate(context.Background(), booksPipeline.Skip(3).Limit(3).DS())
+	if err != nil {
+		panic(err)
+	}
+	var recordsData []map[string]interface{}
+	err = recordsCus.All(context.Background(), &recordsData)
+	if err != nil {
+		panic(err)
+	}
+	d, _ = json.Marshal(recordsData)
 	fmt.Println(string(d))
 
 }

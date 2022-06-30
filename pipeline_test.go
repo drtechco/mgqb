@@ -74,7 +74,7 @@ func Test_pipeline2(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		//_, err2 := conn.Database("test").Collection("orders").InsertMany(context.Background(), docs)
+		//simple, err2 := conn.Database("test").Collection("orders").InsertMany(context.Background(), docs)
 		//if err2 != nil {
 		//	t.Fatal(err2)
 		//}
