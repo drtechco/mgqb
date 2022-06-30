@@ -196,7 +196,7 @@ func AggregateMain() {
 		ProjectSize("types", "$b_docs.types").
 		Project1("author")
 	countCus, err := conn.Database("test").Collection("authors").
-		Aggregate(context.Background(), booksPipeline.Group(Group().FieldId().FieldCount("count")).DS())
+		Aggregate(context.Background(), booksPipeline.Clone().Group(Group().FieldId().FieldCount("count")).DS())
 	if err != nil {
 		panic(err)
 	}
@@ -209,7 +209,7 @@ func AggregateMain() {
 	fmt.Println(string(d))
 
 	recordsCus, err := conn.Database("test").Collection("authors").
-		Aggregate(context.Background(), booksPipeline.Skip(3).Limit(3).DS())
+		Aggregate(context.Background(), booksPipeline.Clone().Skip(3).Limit(3).DS())
 	if err != nil {
 		panic(err)
 	}
