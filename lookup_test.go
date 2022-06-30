@@ -288,7 +288,7 @@ func Test_lookup5(t *testing.T) {
 					From("holidays").
 					Pipeline(Pipeline().
 						SetMatchRaw(bson.D{{"year", 2018}}).
-						Project0("_id").ProjectString("date", bson.M{"name": "$name", "date": "$date"}).
+						Project0("_id").ProjectAny("date", bson.M{"name": "$name", "date": "$date"}).
 						ReplaceRoot("$date")).
 					As("holidays")).DS())
 		if err != nil {
