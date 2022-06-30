@@ -1,4 +1,4 @@
-package mgqb
+package main
 
 type windowOperator string
 

@@ -1,3 +1,3 @@
-package mgqb
+package main
 
 //TODO

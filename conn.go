@@ -1,1 +1,1 @@
-package mgqb
+package main

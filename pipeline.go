@@ -1,4 +1,4 @@
-package mgqb
+package main
 
 import (
 	"go.mongodb.org/mongo-driver/bson"
@@ -111,13 +111,13 @@ func (r *pipeline) Project0(field string) *pipeline {
 	return r
 }
 
-func (r *pipeline) ProjectString(field string, m bson.M) *pipeline {
-	r.project = append(r.project, bson.E{Key: field, Value: m})
-	return r
-}
+//func (r *pipeline) ProjectSub(field string, m bson.M) *pipeline {
+//	r.project = append(r.project, bson.E{Key: field, Value: m})
+//	return r
+//}
 
-func (r *pipeline) ProjectSub(field string, e bson.E) *pipeline {
-	r.project = append(r.project, bson.E{Key: field, Value: e})
+func (r *pipeline) ProjectAny(field string, v interface{}) *pipeline {
+	r.project = append(r.project, bson.E{Key: field, Value: v})
 	return r
 }
 
