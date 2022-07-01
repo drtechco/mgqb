@@ -9,7 +9,7 @@
 go get github.com/drtechco/mgqb
 ```
 ### 示例参考
-参考示例[在这里](./tree/main/_examples)
+参考示例[在这里](https://github.com/drtechco/mgqb/tree/main/_examples)
 
 1. Pipeline 示例
 
