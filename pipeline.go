@@ -322,7 +322,8 @@ func (r *pipeline) DS() []bson.D {
 	}
 
 	if BSON_LOGGER {
-		d, e := bson.MarshalExtJSON(bson.D{{"pipeline", res}}, true, false)
+
+		d, e := bson.MarshalExtJSON(bson.D{{"pipeline", res}}, false, false)
 		if e != nil {
 			Error_Log(e)
 		} else {

@@ -69,13 +69,20 @@ func (r *lookup) D() bson.D {
 	if len(r.let) > 0 {
 		d = append(d, bson.E{Key: "let", Value: r.let})
 	}
+	pipelineRaw := make([]bson.D, 0)
 	if r.pipeline != nil {
 		for _, v := range r.pipeline.DS() {
-			r.pipelineRaw = append(r.pipelineRaw, v)
+			pipelineRaw = append(pipelineRaw, v)
 		}
 	}
 	if len(r.pipelineRaw) > 0 {
-		d = append(d, bson.E{Key: "pipeline", Value: r.pipelineRaw})
+		for _, v := range r.pipelineRaw {
+			pipelineRaw = append(pipelineRaw, v)
+		}
+	}
+
+	if len(pipelineRaw) > 0 {
+		d = append(d, bson.E{Key: "pipeline", Value: pipelineRaw})
 	}
 	d = append(d, bson.E{Key: "as", Value: r.as})
 	return d
