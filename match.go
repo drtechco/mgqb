@@ -58,7 +58,7 @@ func (m *match) AndM(m2 *match) *match {
 }
 
 func (m *match) Or(field string, operator whereOperator, val interface{}) *match {
-	m.context = bson.D{{"$or", bson.A{m.context, bson.E{Key: field, Value: bson.D{{string(operator), val}}}}}}
+	m.context = bson.D{{"$or", bson.A{m.context, bson.M{field: bson.D{{string(operator), val}}}}}}
 	return m
 }
 
@@ -67,7 +67,7 @@ func (m *match) OrWo(field string, w ...*wo) *match {
 	for _, wo := range w {
 		v = append(v, bson.E{Key: string(wo.Operator), Value: wo.Value})
 	}
-	m.context = bson.D{{"$or", bson.A{m.context, bson.E{Key: field, Value: v}}}}
+	m.context = bson.D{{"$or", bson.A{m.context, bson.M{field: v}}}}
 	return m
 }
 
@@ -77,7 +77,7 @@ func (m *match) OrM(m2 *match) *match {
 }
 
 func (m *match) Nor(field string, operator whereOperator, val interface{}) *match {
-	m.context = bson.D{{"$nor", bson.A{m.context, bson.E{Key: field, Value: bson.D{{string(operator), val}}}}}}
+	m.context = bson.D{{"$nor", bson.A{m.context, bson.M{field: bson.D{{string(operator), val}}}}}}
 	return m
 }
 
@@ -86,7 +86,7 @@ func (m *match) NorWo(field string, w ...*wo) *match {
 	for _, wo := range w {
 		v = append(v, bson.E{Key: string(wo.Operator), Value: wo.Value})
 	}
-	m.context = bson.D{{"$nor", bson.A{m.context, bson.E{Key: field, Value: v}}}}
+	m.context = bson.D{{"$nor", bson.A{m.context, bson.M{field: v}}}}
 	return m
 }
 
