@@ -10,6 +10,18 @@
 ```shell
 go get github.com/drtechco/mgqb
 ```
+
+## About log
+```go
+mgqb.BSON_LOGGER = true
+mgqb.Trace_Log = func(args ...interface{}) {
+    fmt.Println(args...)
+}
+mgqb.Error_Log = func(args ...interface{}) {
+    fmt.Println(args...)
+} 
+```
+
 ### EXAMPLES
 Example Code[here](https://github.com/drtechco/mgqb/tree/main/_examples)
 

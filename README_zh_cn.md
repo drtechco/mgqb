@@ -10,6 +10,18 @@ English Readme [here](https://github.com/drtechco/mgqb/blob/main/README.md)
 ```shell
 go get github.com/drtechco/mgqb
 ```
+
+## 日志
+```go
+mgqb.BSON_LOGGER = true
+mgqb.Trace_Log = func(args ...interface{}) {
+    fmt.Println(args...)
+}
+mgqb.Error_Log = func(args ...interface{}) {
+    fmt.Println(args...)
+} 
+```
+
 ### 示例参考
 参考示例[在这里](https://github.com/drtechco/mgqb/tree/main/_examples)
 
