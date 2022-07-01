@@ -24,7 +24,7 @@ func Findmain() {
 
 	fmt.Println("Connected to MongoDB!")
 
-	conn.Database("test").Collection("collection").Drop(context.Background())
+	conn.Database("test").Collection("ratings").Drop(context.Background())
 	var docs []interface{}
 	err = bson.UnmarshalExtJSON([]byte(`
  [
@@ -36,11 +36,11 @@ func Findmain() {
 	if err != nil {
 		panic(err)
 	}
-	_, err2 := conn.Database("test").Collection("collection").InsertMany(context.Background(), docs)
+	_, err2 := conn.Database("test").Collection("ratings").InsertMany(context.Background(), docs)
 	if err2 != nil {
 		panic(err2)
 	}
-	cus, err := conn.Database("test").Collection("collection").Find(context.Background(), mgqb.Match("qty", mgqb.WhereOperators.EQ, 5).D())
+	cus, err := conn.Database("test").Collection("ratings").Find(context.Background(), mgqb.Match("qty", mgqb.WhereOperators.EQ, 5).D())
 	if err != nil {
 		panic(err)
 	}

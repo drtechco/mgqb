@@ -96,6 +96,14 @@ func (m *match) NorM(m2 *match) *match {
 }
 
 func (m *match) D() bson.D {
+	if BSON_LOGGER {
+		d, e := bson.MarshalExtJSON(bson.D{{"match", m.context}}, false, false)
+		if e != nil {
+			Error_Log(e)
+		} else {
+			Trace_Log(string(d))
+		}
+	}
 	return m.context
 }
 

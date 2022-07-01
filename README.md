@@ -4,6 +4,12 @@
 ##### 已实现Pipeline,Lookup,Match,SetWindowFields,Accumulator,AddFields,Group，Project
 ##### 待实现Bucket,BucketAuto,CollStats,Facet,GeoNear,GraphLookup,IndexStats,LstSession,Merge,PlanCacheStats,Redact,UnionWith
 
+## 使用
+```shell
+go get github.com/drtechco/mgqb
+```
+### 示例参考
+参考示例[在这里](./tree/main/_examples)
 
 1. Pipeline 示例
 
@@ -181,7 +187,7 @@ db.authors.aggregate([
 ])
 ```
 ```golang
-beginTime, _ := time.Parse("2006-01-02", "2015-01-01")
+    beginTime, _ := time.Parse("2006-01-02", "2015-01-01")
 	endTime, _ := time.Parse("2006-01-02", "2023-01-01")
 	ordersPipeline := Pipeline().Lookup(
 		Lookup().From("orders").As("o_docs").LocalField("order").ForeignField("order").
@@ -247,7 +253,17 @@ beginTime, _ := time.Parse("2006-01-02", "2015-01-01")
 		Aggregate(context.Background(), booksPipeline.Clone().Group(Group().FieldId().FieldCount("count")).DS())
 ```
 3. Find 示例
-
+```sql
+-- sql query
+select * from ratings where qty=5
+```
+```javascript
+// bson query
+db.ratings.find({"qty":{"$eq":5}})
+```
+```go
+cus, err := conn.Database("test").Collection("ratings").Find(context.Background(), mgqb.Match("qty", mgqb.WhereOperators.EQ, 5).D())
+```
 #####
 PS 更多查看单元测试
 
