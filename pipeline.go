@@ -130,6 +130,16 @@ func (r *pipeline) ProjectFirst(field string, collField string) *pipeline {
 	return r
 }
 
+func (r *pipeline) ProjectLast(field string, collField string) *pipeline {
+	r.project = append(r.project, bson.E{Key: field, Value: bson.M{"$first": collField}})
+	return r
+}
+
+func (r *pipeline) ProjectArrayElemAt(field string, collField string, index int) *pipeline {
+	r.project = append(r.project, bson.E{Key: field, Value: bson.M{"$arrayElemAt": bson.A{collField, index}}})
+	return r
+}
+
 func (r *pipeline) ProjectSize(field string, collField string) *pipeline {
 	r.project = append(r.project, bson.E{Key: field, Value: bson.M{"$size": collField}})
 	return r
