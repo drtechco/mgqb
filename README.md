@@ -32,356 +32,244 @@ ORDER BY
 ```
 ```javascript
 //bson query
-db.authors.aggregate( [
-    {
-        "$lookup": {
-            "from": "books",
-            "localField": "authorId",
-            "foreignField": "authorId",
-            "pipeline": [
-                {
-                    "$lookup": {
-                        "from": "orders_detail",
-                        "localField": "bookId",
-                        "foreignField": "bookId",
-                        "pipeline": [
-                            {
-                                "$lookup": {
-                                    "from": "orders",
-                                    "localField": "order",
-                                    "foreignField": "order",
-                                    "pipeline": [
-                                        {
-                                            "$match": {
-                                                "dataTime": {
-                                                    "$gte": {
-                                                        "$date": {
-                                                            "$numberLong": "1420070400000"
-                                                        }
-                                                    },
-                                                    "$lt": {
-                                                        "$date": {
-                                                            "$numberLong": "1672531200000"
+db.authors.aggregate([
+        {
+            "$lookup": {
+                "from": "books",
+                "localField": "authorId",
+                "foreignField": "authorId",
+                "pipeline": [
+                    {
+                        "$lookup": {
+                            "from": "orders_detail",
+                            "localField": "bookId",
+                            "foreignField": "bookId",
+                            "pipeline": [
+                                {
+                                    "$lookup": {
+                                        "from": "orders",
+                                        "localField": "order",
+                                        "foreignField": "order",
+                                        "pipeline": [
+                                            {
+                                                "$match": {
+                                                    "dataTime": {
+                                                        "$gte": {
+                                                            "$date": {
+                                                                "$numberLong": "1420070400000"
+                                                            }
+                                                        },
+                                                        "$lt": {
+                                                            "$date": {
+                                                                "$numberLong": "1672531200000"
+                                                            }
                                                         }
                                                     }
                                                 }
-                                            }
-                                        },
-                                        {
-                                            "$group": {
-                                                "_id": null,
-                                                "orderCount": {
-                                                    "$sum": 1
+                                            },
+                                            {
+                                                "$group": {
+                                                    "_id": null,
+                                                    "orderCount": {
+                                                        "$sum": 1
+                                                    }
                                                 }
                                             }
+                                        ],
+                                        "as": "o_docs"
+                                    }
+                                },
+                                {
+                                    "$project": {
+                                        "orderCount": {
+                                            "$first": "$o_docs.orderCount"
+                                        },
+                                        "_id": 1,
+                                        "bookId": 1,
+                                        "bookName": 1,
+                                        "count": 1,
+                                        "money": 1,
+                                        "type": 1,
+                                        "order": 1
+                                    }
+                                },
+                                {
+                                    "$group": {
+                                        "_id": "$bookId",
+                                        "orderCount": {
+                                            "$sum": "$orderCount"
+                                        },
+                                        "saleCount": {
+                                            "$sum": "$count"
+                                        },
+                                        "saleAmount": {
+                                            "$sum": "$money"
                                         }
-                                    ],
-                                    "as": "o_docs"
-                                }
-                            },
-                            {
-                                "$project": {
-                                    "orderCount": {
-                                        "$first": "$o_docs.orderCount"
-                                    },
-                                    "_id": 1,
-                                    "bookId": 1,
-                                    "bookName": 1,
-                                    "count": 1,
-                                    "money": 1,
-                                    "type": 1,
-                                    "order": 1
-                                }
-                            },
-                            {
-                                "$group": {
-                                    "saleCount": {
-                                        "$sum": "$count"
-                                    },
-                                    "saleAmount": {
-                                        "$sum": "$money"
-                                    },
-                                    "_id": "$bookId",
-                                    "orderCount": {
-                                        "$sum": "$orderCount"
+                                    }
+                                },
+                                {
+                                    "$lookup": {
+                                        "from": "orders",
+                                        "localField": "order",
+                                        "foreignField": "order",
+                                        "pipeline": [
+                                            {
+                                                "$match": {
+                                                    "dataTime": {
+                                                        "$gte": {
+                                                            "$date": {
+                                                                "$numberLong": "1420070400000"
+                                                            }
+                                                        },
+                                                        "$lt": {
+                                                            "$date": {
+                                                                "$numberLong": "1672531200000"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "$group": {
+                                                    "_id": null,
+                                                    "orderCount": {
+                                                        "$sum": 1
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "$match": {
+                                                    "dataTime": {
+                                                        "$gte": {
+                                                            "$date": {
+                                                                "$numberLong": "1420070400000"
+                                                            }
+                                                        },
+                                                        "$lt": {
+                                                            "$date": {
+                                                                "$numberLong": "1672531200000"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "$group": {
+                                                    "_id": null,
+                                                    "orderCount": {
+                                                        "$sum": 1
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                        "as": "o_docs"
+                                    }
+                                },
+                                {
+                                    "$project": {
+                                        "orderCount": {
+                                            "$first": "$o_docs.orderCount"
+                                        },
+                                        "_id": 1,
+                                        "bookId": 1,
+                                        "bookName": 1,
+                                        "count": 1,
+                                        "money": 1,
+                                        "type": 1,
+                                        "order": 1
+                                    }
+                                },
+                                {
+                                    "$group": {
+                                        "saleCount": {
+                                            "$sum": "$count"
+                                        },
+                                        "saleAmount": {
+                                            "$sum": "$money"
+                                        },
+                                        "_id": "$bookId",
+                                        "orderCount": {
+                                            "$sum": "$orderCount"
+                                        }
                                     }
                                 }
+                            ],
+                            "as": "od_docs"
+                        }
+                    },
+                    {
+                        "$project": {
+                            "orderCount": {
+                                "$first": "$od_docs.orderCount"
+                            },
+                            "saleCount": {
+                                "$first": "$od_docs.saleCount"
+                            },
+                            "saleAmount": {
+                                "$first": "$od_docs.saleAmount"
+                            },
+                            "_id": 1,
+                            "author": 1,
+                            "authorId": 1,
+                            "bookId": 1,
+                            "bookName": 1,
+                            "money": 1,
+                            "od_docs": 1,
+                            "type": 1
+                        }
+                    },
+                    {
+                        "$group": {
+                            "saleCount": {
+                                "$sum": "$saleCount"
+                            },
+                            "saleAmount": {
+                                "$sum": "$saleAmount"
+                            },
+                            "types": {
+                                "$addToSet": "$type"
+                            },
+                            "bookCount": {
+                                "$sum": 1
+                            },
+                            "_id": null,
+                            "orderCount": {
+                                "$sum": "$orderCount"
                             }
-                        ],
-                        "as": "od_docs"
-                    }
-                },
-                {
-                    "$project": {
-                        "orderCount": {
-                            "$first": "$od_docs.orderCount"
-                        },
-                        "saleCount": {
-                            "$first": "$od_docs.saleCount"
-                        },
-                        "saleAmount": {
-                            "$first": "$od_docs.saleAmount"
-                        },
-                        "_id": 1,
-                        "author": 1,
-                        "authorId": 1,
-                        "bookId": 1,
-                        "bookName": 1,
-                        "money": 1,
-                        "od_docs": 1,
-                        "type": 1
-                    }
-                },
-                {
-                    "$group": {
-                        "_id": null,
-                        "orderCount": {
-                            "$sum": "$orderCount"
-                        },
-                        "saleCount": {
-                            "$sum": "$saleCount"
-                        },
-                        "saleAmount": {
-                            "$sum": "$saleAmount"
-                        },
-                        "types": {
-                            "$addToSet": "$type"
-                        },
-                        "bookCount": {
-                            "$sum": 1
                         }
                     }
+                ],
+                "as": "b_docs"
+            }
+        },
+        {
+            "$project": {
+                "orderCount": {
+                    "$first": "$b_docs.orderCount"
                 },
-                {
-                    "$lookup": {
-                        "from": "orders_detail",
-                        "localField": "bookId",
-                        "foreignField": "bookId",
-                        "pipeline": [
-                            {
-                                "$lookup": {
-                                    "from": "orders",
-                                    "localField": "order",
-                                    "foreignField": "order",
-                                    "pipeline": [
-                                        {
-                                            "$match": {
-                                                "dataTime": {
-                                                    "$gte": {
-                                                        "$date": {
-                                                            "$numberLong": "1420070400000"
-                                                        }
-                                                    },
-                                                    "$lt": {
-                                                        "$date": {
-                                                            "$numberLong": "1672531200000"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "$group": {
-                                                "_id": null,
-                                                "orderCount": {
-                                                    "$sum": 1
-                                                }
-                                            }
-                                        }
-                                    ],
-                                    "as": "o_docs"
-                                }
-                            },
-                            {
-                                "$project": {
-                                    "orderCount": {
-                                        "$first": "$o_docs.orderCount"
-                                    },
-                                    "_id": 1,
-                                    "bookId": 1,
-                                    "bookName": 1,
-                                    "count": 1,
-                                    "money": 1,
-                                    "type": 1,
-                                    "order": 1
-                                }
-                            },
-                            {
-                                "$group": {
-                                    "saleCount": {
-                                        "$sum": "$count"
-                                    },
-                                    "saleAmount": {
-                                        "$sum": "$money"
-                                    },
-                                    "_id": "$bookId",
-                                    "orderCount": {
-                                        "$sum": "$orderCount"
-                                    }
-                                }
-                            },
-                            {
-                                "$lookup": {
-                                    "from": "orders",
-                                    "localField": "order",
-                                    "foreignField": "order",
-                                    "pipeline": [
-                                        {
-                                            "$match": {
-                                                "dataTime": {
-                                                    "$gte": {
-                                                        "$date": {
-                                                            "$numberLong": "1420070400000"
-                                                        }
-                                                    },
-                                                    "$lt": {
-                                                        "$date": {
-                                                            "$numberLong": "1672531200000"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "$group": {
-                                                "_id": null,
-                                                "orderCount": {
-                                                    "$sum": 1
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "$match": {
-                                                "dataTime": {
-                                                    "$gte": {
-                                                        "$date": {
-                                                            "$numberLong": "1420070400000"
-                                                        }
-                                                    },
-                                                    "$lt": {
-                                                        "$date": {
-                                                            "$numberLong": "1672531200000"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        {
-                                            "$group": {
-                                                "_id": null,
-                                                "orderCount": {
-                                                    "$sum": 1
-                                                }
-                                            }
-                                        }
-                                    ],
-                                    "as": "o_docs"
-                                }
-                            },
-                            {
-                                "$project": {
-                                    "orderCount": {
-                                        "$first": "$o_docs.orderCount"
-                                    },
-                                    "_id": 1,
-                                    "bookId": 1,
-                                    "bookName": 1,
-                                    "count": 1,
-                                    "money": 1,
-                                    "type": 1,
-                                    "order": 1
-                                }
-                            },
-                            {
-                                "$group": {
-                                    "saleCount": {
-                                        "$sum": "$count"
-                                    },
-                                    "saleAmount": {
-                                        "$sum": "$money"
-                                    },
-                                    "_id": "$bookId",
-                                    "orderCount": {
-                                        "$sum": "$orderCount"
-                                    }
-                                }
-                            }
-                        ],
-                        "as": "od_docs"
-                    }
+                "saleCount": {
+                    "$first": "$b_docs.saleCount"
                 },
-                {
-                    "$project": {
-                        "orderCount": {
-                            "$first": "$od_docs.orderCount"
-                        },
-                        "saleCount": {
-                            "$first": "$od_docs.saleCount"
-                        },
-                        "saleAmount": {
-                            "$first": "$od_docs.saleAmount"
-                        },
-                        "_id": 1,
-                        "author": 1,
-                        "authorId": 1,
-                        "bookId": 1,
-                        "bookName": 1,
-                        "money": 1,
-                        "od_docs": 1,
-                        "type": 1
-                    }
+                "saleAmount": {
+                    "$first": "$b_docs.saleAmount"
                 },
-                {
-                    "$group": {
-                        "_id": null,
-                        "orderCount": {
-                            "$sum": "$orderCount"
-                        },
-                        "saleCount": {
-                            "$sum": "$saleCount"
-                        },
-                        "saleAmount": {
-                            "$sum": "$saleAmount"
-                        },
-                        "types": {
-                            "$addToSet": "$type"
-                        },
-                        "bookCount": {
-                            "$sum": 1
-                        }
-                    }
-                }
-            ],
-            "as": "b_docs"
+                "bookCount": {
+                    "$first": "$b_docs.bookCount"
+                },
+                "types": {
+                    "$size": "$b_docs.types"
+                },
+                "author": 1
+            }
+        },
+        {
+            "$skip": 3
+        },
+        {
+            "$limit": 3
         }
-    },
-    {
-        "$project": {
-            "orderCount": {
-                "$first": "$b_docs.orderCount"
-            },
-            "saleCount": {
-                "$first": "$b_docs.saleCount"
-            },
-            "saleAmount": {
-                "$first": "$b_docs.saleAmount"
-            },
-            "bookCount": {
-                "$first": "$b_docs.bookCount"
-            },
-            "types": {
-                "$size": "$b_docs.types"
-            },
-            "author": 1
-        }
-    },
-    {
-        "$skip": 3
-    },
-    {
-        "$limit": 3
-    }
-])
+    ]
+)
 ```
 ```golang
 beginTime, _ := time.Parse("2006-01-02", "2015-01-01")
