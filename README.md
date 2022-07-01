@@ -1,7 +1,7 @@
 # mgqb 
 
 中文说明[点这里](https://github.com/drtechco/mgqb/blob/main/README_zh_cn.md)
-# Mongodb bson stream query builder for golang
+# Mongodb bson stream style query builder for golang
 ##### Implemented some commonly queries now
 ##### Implemented Pipeline,Lookup,Match,SetWindowFields,Accumulator,AddFields,Group，Project
 ##### Not implemented  Bucket,BucketAuto,CollStats,Facet,GeoNear,GraphLookup,IndexStats,LstSession,Merge,PlanCacheStats,Redact,UnionWith
