@@ -1,17 +1,19 @@
 # mgqb 
-# Golang Mongodb bson查询流式构造器
-##### 实现了一些常用的查询 
-##### 已实现Pipeline,Lookup,Match,SetWindowFields,Accumulator,AddFields,Group，Project
-##### 待实现Bucket,BucketAuto,CollStats,Facet,GeoNear,GraphLookup,IndexStats,LstSession,Merge,PlanCacheStats,Redact,UnionWith
 
-## 使用
+中文说明[点这里](https://github.com/drtechco/mgqb/blob/main/README_zh_cn.md)
+# Mongodb bson stream query builder for golang
+##### Implemented some commonly queries now
+##### Implemented Pipeline,Lookup,Match,SetWindowFields,Accumulator,AddFields,Group，Project
+##### Not implemented  Bucket,BucketAuto,CollStats,Facet,GeoNear,GraphLookup,IndexStats,LstSession,Merge,PlanCacheStats,Redact,UnionWith
+
+## USE
 ```shell
 go get github.com/drtechco/mgqb
 ```
-### 示例参考
-参考示例[在这里](https://github.com/drtechco/mgqb/tree/main/_examples)
+### EXAMPLES
+Example Code[here](https://github.com/drtechco/mgqb/tree/main/_examples)
 
-1. Pipeline 示例
+1. Example Pipeline  
 
 ```sql
 -- page2 sql:
@@ -252,7 +254,7 @@ db.authors.aggregate([
 	countCus, err := conn.Database("test").Collection("authors").
 		Aggregate(context.Background(), booksPipeline.Clone().Group(Group().FieldId().FieldCount("count")).DS())
 ```
-3. Find 示例
+3. Example Find 
 ```sql
 -- sql query
 select * from ratings where qty=5
@@ -265,6 +267,6 @@ db.ratings.find({"qty":{"$eq":5}})
 cus, err := conn.Database("test").Collection("ratings").Find(context.Background(), mgqb.Match("qty", mgqb.WhereOperators.EQ, 5).D())
 ```
 #####
-PS 更多查看单元测试
+PS More examples in unit test
 
 
