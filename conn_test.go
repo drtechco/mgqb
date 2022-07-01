@@ -7,7 +7,7 @@ import (
 )
 
 func initTestConn() *mongo.Client {
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://10.117.1.102:27017"))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://10.117.1.102:27017/test?connect=direct"))
 	if err != nil {
 		panic(err)
 	}
