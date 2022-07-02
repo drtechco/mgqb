@@ -202,69 +202,69 @@ db.authors.aggregate([
 ```
 ```golang
     beginTime, _ := time.Parse("2006-01-02", "2015-01-01")
-endTime, _ := time.Parse("2006-01-02", "2023-01-01")
-ordersPipeline := Pipeline().Lookup(
-Lookup().From("orders").As("o_docs").LocalField("order").ForeignField("order").
-Pipeline(
-Pipeline().
-SetMatch(
-MatchWo(
-"dataTime",
-WO(WhereOperators.GTE, primitive.NewDateTimeFromTime(beginTime)),
-WO(WhereOperators.LT, primitive.NewDateTimeFromTime(endTime)),
-),
-).
-Group(
-Group().Field("_id", nil).FieldCount("orderCount"),
-),
-),
-).
-ProjectAny("orderCount", bson.M{"$first": "$o_docs.orderCount"}).
-Project1("_id", "bookId", "bookName", "count", "money", "type", "order").
-Group(
-Group().
-FieldSimple("_id", "$bookId").
-FieldSum("orderCount", "$orderCount").
-FieldSum("saleCount", "$count").
-FieldSum("saleAmount", "$money"),
-)
+    endTime, _ := time.Parse("2006-01-02", "2023-01-01")
+    ordersPipeline := Pipeline().Lookup(
+        Lookup().From("orders").As("o_docs").LocalField("order").ForeignField("order").
+            Pipeline(
+                Pipeline().
+                    SetMatch(
+                        MatchWo(
+                            "dataTime",
+                            WO(WhereOperators.GTE, primitive.NewDateTimeFromTime(beginTime)),
+                            WO(WhereOperators.LT, primitive.NewDateTimeFromTime(endTime)),
+                        ), 
+					).
+                    Group(
+                        Group().Field("_id", nil).FieldCount("orderCount"),
+                    ),
+            ),
+    ).
+        ProjectAny("orderCount", bson.M{"$first": "$o_docs.orderCount"}).
+        Project1("_id", "bookId", "bookName", "count", "money", "type", "order").
+        Group(
+            Group().
+                FieldSimple("_id", "$bookId").
+                FieldSum("orderCount", "$orderCount").
+                FieldSum("saleCount", "$count").
+                FieldSum("saleAmount", "$money"),
+        )
 
-ordersDetailPipeline := Pipeline().Lookup(
-Lookup().From("orders_detail").As("od_docs").
-LocalField("bookId").
-ForeignField("bookId").
-Pipeline(
-ordersPipeline,
-),
-).
-ProjectAny("orderCount", bson.M{"$first": "$od_docs.orderCount"}).
-ProjectAny("saleCount", bson.M{"$first": "$od_docs.saleCount"}).
-ProjectAny("saleAmount", bson.M{"$first": "$od_docs.saleAmount"}).
-Project1("_id", "author", "authorId", "bookId", "bookName", "money", "od_docs", "type").
-Group(
-Group().FieldId().
-FieldSum("orderCount", "$orderCount").
-FieldSum("saleCount", "$saleCount").
-FieldSum("saleAmount", "$saleAmount").
-FieldAddToSet("types", "$type").
-FieldCount("bookCount"),
-)
+    ordersDetailPipeline := Pipeline().Lookup(
+        Lookup().From("orders_detail").As("od_docs").
+            LocalField("bookId").
+            ForeignField("bookId").
+            Pipeline(
+                ordersPipeline,
+        ),
+    ).
+    ProjectAny("orderCount", bson.M{"$first": "$od_docs.orderCount"}).
+    ProjectAny("saleCount", bson.M{"$first": "$od_docs.saleCount"}).
+    ProjectAny("saleAmount", bson.M{"$first": "$od_docs.saleAmount"}).
+    Project1("_id", "author", "authorId", "bookId", "bookName", "money", "od_docs", "type").
+    Group(
+        Group().FieldId().
+            FieldSum("orderCount", "$orderCount").
+            FieldSum("saleCount", "$saleCount").
+            FieldSum("saleAmount", "$saleAmount").
+            FieldAddToSet("types", "$type").
+            FieldCount("bookCount"),
+    )
 
-booksPipeline := Pipeline().
-Lookup(
-Lookup().From("books").As("b_docs").
-LocalField("authorId").
-ForeignField("authorId").
-Pipeline(ordersDetailPipeline),
-).
-ProjectFirst("orderCount", "$b_docs.orderCount").
-ProjectFirst("saleCount", "$b_docs.saleCount").
-ProjectFirst("saleAmount", "$b_docs.saleAmount").
-ProjectFirst("bookCount", "$b_docs.bookCount").
-ProjectSize("types", "$b_docs.types").
-Project1("author")
-countCus, err := conn.Database("test").Collection("authors").
-Aggregate(context.Background(), booksPipeline.Clone().Group(Group().FieldId().FieldCount("count")).DS())
+    booksPipeline := Pipeline().
+        Lookup(
+            Lookup().From("books").As("b_docs").
+                LocalField("authorId").
+                ForeignField("authorId").
+                Pipeline(ordersDetailPipeline),
+        ).
+        ProjectFirst("orderCount", "$b_docs.orderCount").
+        ProjectFirst("saleCount", "$b_docs.saleCount").
+        ProjectFirst("saleAmount", "$b_docs.saleAmount").
+        ProjectFirst("bookCount", "$b_docs.bookCount").
+        ProjectSize("types", "$b_docs.types").
+        Project1("author")
+    countCus, err := conn.Database("test").Collection("authors").
+        Aggregate(context.Background(), booksPipeline.Clone().Group(Group().FieldId().FieldCount("count")).DS())
 ```
 3. Find 示例
 ```sql
