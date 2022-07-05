@@ -1,7 +1,7 @@
 [![Language](https://img.shields.io/badge/Language-Go-blue.svg)](https://golang.org/)
 [![Build Status](https://github.com/drtechco/mgqb/workflows/Go/badge.svg)](https://github.com/drtechco/mgqb/actions)
 [![GoDoc](https://godoc.org/github.com/drtechco/mgqb?status.svg)](https://pkg.go.dev/github.com/drtechco/mgqb)
-[![Build Status](https://github.com/drtechco/mgqb/workflows/Go/badge.svg)](https://github.com/drtechco/mgqb/actions)
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/drtechco/mgqb)](https://goreportcard.com/report/github.com/drtechco/mgqb)
 # mgqb 
 
