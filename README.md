@@ -1,3 +1,4 @@
+[![Build Status](https://github.com/drtechco/mgqb/workflows/Go/badge.svg)](https://github.com/drtechco/mgqb/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/drtechco/mgqb)](https://goreportcard.com/report/github.com/drtechco/mgqb)
 # mgqb 
 
