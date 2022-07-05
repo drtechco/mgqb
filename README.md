@@ -1,3 +1,4 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/drtechco/mgqb)](https://goreportcard.com/report/github.com/drtechco/mgqb)
 # mgqb 
 
 中文说明[点这里](https://github.com/drtechco/mgqb/blob/main/README_zh_cn.md)
