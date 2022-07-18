@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+// 根据“组密钥”将文档分成组。输出是每个唯一组键的一个文档
 func Test_group1(t *testing.T) {
 	t.Run("Test_group1", func(t *testing.T) {
 		conn := initTestConn()

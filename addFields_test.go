@@ -9,6 +9,7 @@ import (
 	"testing"
 )
 
+// addFields 向文档添加新字段 输出包含来自输入文档和新添加字段的所有现有字段的文档
 func Test_addFields1(t *testing.T) {
 	t.Run("Test_addFields1", func(t *testing.T) {
 		conn := initTestConn()

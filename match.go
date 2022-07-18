@@ -67,7 +67,7 @@ func (m *match) OrWo(field string, w ...*wo) *match {
 	for _, wo := range w {
 		v = append(v, bson.E{Key: string(wo.Operator), Value: wo.Value})
 	}
-	m.context = bson.D{{"$or", bson.A{m.context, bson.M{field: v}}}}
+	m.context = bson.D{{"$or", bson.A{m.context, bson.D{{Key: field, Value: v}}}}}
 	return m
 }
 
