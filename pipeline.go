@@ -110,7 +110,7 @@ func (r *pipeline) Project1(fields ...string) *pipeline {
 
 func (r *pipeline) Project0(fields ...string) *pipeline {
 	for _, field := range fields {
-		r.project = append(r.project, bson.E{Key: field, Value: 1})
+		r.project = append(r.project, bson.E{Key: field, Value: 0})
 	}
 	return r
 }
