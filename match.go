@@ -52,6 +52,19 @@ func (m *match) AndWo(field string, w ...*wo) *match {
 	return m
 }
 
+func (m *match) AndWo2(field string, w ...*wo) *match {
+	v := make(bson.D, 0)
+	for _, wo := range w {
+		v = append(v, bson.E{Key: string(wo.Operator), Value: wo.Value})
+	}
+	if m.context == nil {
+		m.context = bson.D{{field, v}}
+	} else {
+		m.context = append(m.context, bson.E{Key: field, Value: v})
+	}
+	return m
+}
+
 func (m *match) AndM(m2 *match) *match {
 	m.context = append(m.context, m2.context...)
 	return m
