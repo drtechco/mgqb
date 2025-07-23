@@ -58,7 +58,7 @@ func (g *group) FieldAddToSet(field string, collField string) *group {
 	return g
 }
 
-func (g *group) FieldSum(field string, collField string) *group {
+func (g *group) FieldSum(field string, collField interface{}) *group {
 	g.fields[field] = bson.M{"$sum": collField}
 	return g
 }
